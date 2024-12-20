@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Click Display with Random Photos</title>
+    <style>
+        /* Basic Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        #time-display {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        .btn:active {
+            background-color: #388e3c;
+        }
+
+        #random-image {
+            margin-top: 20px;
+            max-width: 100%;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Click to Get Current Time and Random Image</h1>
+        <div id="time-display">No time fetched yet.</div>
+        <button class="btn" onclick="getCurrentTime()">Click Me</button>
+        <div id="random-image-container">
+            <img id="random-image" src="" alt="Random Image">
+        </div>
+    </div>
+
+    <script>
+        // Flag to ensure we don't fetch time multiple times on a single click
+        let timeFetched = false;
+
+        // Function to get current time via API
+        async function getCurrentTime() {
+            if (timeFetched) {
+                // If time is already fetched, no need to fetch again
+                return;
+            }
+            timeFetched = true; // Mark time as fetched
+
+            try {
+                // Fetching time from the World Time API (example)
+                const response = await fetch('http://worldtimeapi.org/api/ip');
+                
+                // Check if the response is successful (status 200)
+                if (!response.ok) {
+                    throw new Error('Failed to fetch time');
+                }
+                
+                const data = await response.json();
+                // Getting the current time
+                const currentTime = data.datetime;
+
+                // Extracting the time in HH:MM:SS format
+                const time = new Date(currentTime).toLocaleTimeString();
+
+                // Display the time on the page
+                document.getElementById('time-display').textContent = time;
+            } catch (error) {
+                console.error('Error fetching time:', error);
+                document.getElementById('time-display').textContent = 'Error fetching time';
+            }
+        }
+
+        // Function to get a random image every second
+        function fetchRandomImage() {
+            // Using Lorem Picsum API for random images
+            fetch('https://picsum.photos/400/300')
+                .then(response => {
+                    // Check if the image was fetched successfully
+                    if (response.ok) {
+                        document.getElementById('random-image').src = response.url;
+                    } else {
+                        console.error('Error fetching random image');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching random image:', error);
+                });
+        }
+
+        // Fetch a new random image every second
+        setInterval(fetchRandomImage, 1000);
+
+        // Initial image load
+        fetchRandomImage();
+    </script>
+</body>
+</html>
